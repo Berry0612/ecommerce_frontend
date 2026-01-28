@@ -34,7 +34,7 @@ const submit = async () => {
     <input v-model="form.email" type="email" placeholder="Email" class="border p-2 w-full mb-2" />
     <input v-model="form.password" type="password" placeholder="Password" class="border p-2 w-full mb-4" />
     
-    <button @click="submit" class="bg-blue-500 text-white p-2 w-full rounded">
+    <button @click="submit" class="bg-blue-500 text-white p-2 w-full rounded hover:bg-gray-600">
       {{ isLogin ? '登入' : '註冊' }}
     </button>
     

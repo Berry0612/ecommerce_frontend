@@ -1,7 +1,9 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue';
+import { useRouter } from 'vue-router';
 import request from '../api/request';
 
+const router = useRouter();
 const products = ref([]);
 const filters = reactive({
   category: '',
@@ -32,7 +34,8 @@ const addToCart = async (product) => {
     });
     alert('已加入購物車！');
   } catch (error) {
-    alert('請先登入會員');
+    alert('請先登入');
+    router.push('/login');
   }
 };
 
@@ -45,7 +48,7 @@ onMounted(fetchProducts);
       <input v-model="filters.category" placeholder="分類" class="border p-2" />
       <input v-model="filters.minPrice" type="number" placeholder="最低價" class="border p-2" />
       <input v-model="filters.maxPrice" type="number" placeholder="最高價" class="border p-2" />
-      <button @click="fetchProducts" class="bg-gray-800 text-white px-4 py-2 rounded">搜尋</button>
+      <button @click="fetchProducts" class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-gray-800">搜尋</button>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">

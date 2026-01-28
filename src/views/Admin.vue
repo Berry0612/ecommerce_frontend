@@ -33,7 +33,7 @@ const addProduct = async () => {
       <input v-model="form.price" type="number" placeholder="價格" class="w-full border p-2 rounded" />
       <input v-model="form.category" placeholder="分類" class="w-full border p-2 rounded" />
       
-      <button @click="addProduct" class="w-full bg-gray-800 text-white py-2 rounded">
+      <button @click="addProduct" class="w-full bg-blue-600 text-white  py-2 rounded hover:bg-gray-800">
         上架商品
       </button>
     </div>

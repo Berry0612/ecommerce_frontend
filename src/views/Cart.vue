@@ -1,17 +1,23 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import request from '../api/request';
 
 const cart = ref(null);
-
+const router = useRouter();
 const fetchCart = async () => {
   try {
     // 取得 CartEntity [cite: 48, 69]
     const res = await request.get('/api/cart/');
-    cart.value = res.data;
+    const cartData = res.data;
+    if(Array.isArray(cartData.cartItems)){
+      cartData.cartItems.sort((a, b) => b.id - a.id);
+    }
+    cart.value = cartData;
+    
   } catch (error) {
-    console.error(error);
-    alert('無法取得購物車，請確認是否登入');
+    router.push('/login');
+    alert('請先登入');
   }
 };
 
@@ -42,6 +48,27 @@ const removeItem = async (itemId) => {
   }
 };
 
+const checkout = async () => {
+  if (!cart.value || cart.value.totalPrice === 0) {
+    alert('購物車是空的');
+    return;
+  }
+
+  try {
+    // 1. 呼叫後端結帳 API
+    // request.js 會自動帶入 Authorization Header
+    const res = await request.post('/api/payment/checkout');
+    
+    // 2. 後端回傳的是一段 HTML (包含自動 submit 的 form)
+    // 我們將這段 HTML 寫入當前頁面，瀏覽器就會自動執行並跳轉到綠界
+    document.write(res.data); 
+
+  } catch (error) {
+    console.error(error);
+    alert('結帳發生錯誤，請稍後再試');
+  }
+};
+
 onMounted(fetchCart);
 </script>
 
@@ -69,6 +96,13 @@ onMounted(fetchCart);
       <p class="text-xl font-bold">總金額: ${{ cart.totalPrice }}</p>
       <button class="mt-4 bg-green-600 text-white px-8 py-3 rounded text-lg">結帳</button>
     </div>
+
+    <button 
+        @click="checkout" 
+        class="mt-4 bg-green-600 text-white px-8 py-3 rounded text-lg hover:bg-green-700 transition">
+        結帳去 (綠界支付)
+      </button>
+      
   </div>
   <div v-else class="text-center mt-10">載入中...</div>
 </template>

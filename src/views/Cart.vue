@@ -1,10 +1,10 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import request from '../api/request';
+import { CalendarDateRangeIcon } from '@heroicons/vue/24/outline';
 
 const cart = ref(null);
-const router = useRouter();
+
 const fetchCart = async () => {
   try {
     // 取得 CartEntity [cite: 48, 69]
@@ -16,8 +16,8 @@ const fetchCart = async () => {
     cart.value = cartData;
     
   } catch (error) {
-    router.push('/login');
-    alert('請先登入');
+    console.error(error);
+    alert('無法取得購物車，請確認是否登入');
   }
 };
 
@@ -94,15 +94,12 @@ onMounted(fetchCart);
 
     <div class="mt-8 text-right">
       <p class="text-xl font-bold">總金額: ${{ cart.totalPrice }}</p>
-      <button class="mt-4 bg-green-600 text-white px-8 py-3 rounded text-lg">結帳</button>
-    </div>
-
-    <button 
+      <button 
         @click="checkout" 
         class="mt-4 bg-green-600 text-white px-8 py-3 rounded text-lg hover:bg-green-700 transition">
         結帳去 (綠界支付)
       </button>
-      
+    </div>
   </div>
   <div v-else class="text-center mt-10">載入中...</div>
 </template>

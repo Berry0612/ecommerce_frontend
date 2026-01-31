@@ -1,6 +1,7 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, watch} from 'vue';
 import AuthModal from './AuthModal.vue';
+import { cartCount, fetchCartCount } from '../store/cartStore';
 
 const isAuthModalOpen = ref(false);
 const isMenuOpen = ref(false);//手機版菜單開關
@@ -15,6 +16,8 @@ const toggleMenu = () => {
 const checkLoginStatus = () => {
   const token = localStorage.getItem('jwt');
   if (token) {
+    isLoggedIn.value = true;
+    fetchCartCount();
     try {
         // Token 格式是 header.payload.signature，我們取中間的 payload
         const payload = JSON.parse(atob(token.split('.')[1]));
@@ -27,6 +30,7 @@ const checkLoginStatus = () => {
         console.error('Token 解析失敗', e);
         isLoggedIn.value = false;
         isAdmin.value = false;
+        cartCount.value = 0;
     }
 
   } else {
@@ -36,7 +40,7 @@ const checkLoginStatus = () => {
 
 //處理登入成功 (由 AuthModal 觸發)
 const handleLoginSuccess = () => {
-  isLoggedIn.value = true;
+  checkLoginStatus();
   isAuthModalOpen.value = false; // 關閉登入視窗
   isProfileMenuOpen.value = false; // 確保選單是關閉的
 };
@@ -96,7 +100,6 @@ onMounted(() => {
   <!-- ========================================================================================================= -->
     <div class="hidden sm:flex items-center gap-8">
       <router-link to="/" class="hover:text-indigo-600 transition">商品列表</router-link>
-      <router-link to="/cart" class="hover:text-indigo-600 transition">購物車</router-link>
       <router-link v-if="isAdmin" to="/admin" class="hover:text-indigo-600 transition">後台管理</router-link>
 
       <div class="hidden lg:flex items-center text-sm gap-2 border border-gray-300 px-3 rounded-full">
@@ -107,20 +110,25 @@ onMounted(() => {
         </svg>
       </div>
 
-      <div class="relative cursor-pointer hover:opacity-80 transition">
+      <!-- <div class="relative cursor-pointer hover:opacity-80 transition">
         <svg width="18" height="18" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M.583.583h2.333l1.564 7.81a1.17 1.17 0 0 0 1.166.94h5.67a1.17 1.17 0 0 0 1.167-.94l.933-4.893H3.5m2.333 8.75a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0m6.417 0a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0" stroke="#615fff" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <span class="absolute -top-2 -right-3 text-xs text-white bg-indigo-500 w-[18px] h-[18px] rounded-full flex items-center justify-center">3</span>
-      </div>
-
-      <!-- 漂浮視窗不用router link -->
-        <!-- <button 
-            @click="isAuthModalOpen = true"
-            class="cursor-pointer px-8 py-2 bg-indigo-500 hover:bg-indigo-600 transition text-white rounded-full"
+      </div> -->
+      <router-link to="/cart" class="relative cursor-pointer hover:opacity-80 transition">
+        <svg width="18" height="18" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M.583.583h2.333l1.564 7.81a1.17 1.17 0 0 0 1.166.94h5.67a1.17 1.17 0 0 0 1.167-.94l.933-4.893H3.5m2.333 8.75a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0m6.417 0a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0" stroke="#615fff" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        
+        <span 
+            v-if="cartCount > 0"
+            class="absolute -top-2 -right-3 text-xs text-white bg-indigo-500 w-[18px] h-[18px] rounded-full flex items-center justify-center"
         >
-            Login
-        </button> -->
+            {{ cartCount }}
+        </span>
+      </router-link>
+
       <div class="relative">
         <div v-if="isLoggedIn" class="relative">
             <button 

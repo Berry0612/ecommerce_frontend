@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import request from '../api/request';
+import { fetchCartCount } from '../store/cartStore';
 import { CalendarDateRangeIcon } from '@heroicons/vue/24/outline';
 
 const cart = ref(null);
@@ -42,7 +43,9 @@ const removeItem = async (itemId) => {
   try {
     // 呼叫 DELETE /api/cartItem/{id} 
     await request.delete(`/api/cartItem/${itemId}`);
-    fetchCart();
+    fetchCart(); 
+    fetchCartCount();
+
   } catch (error) {
     alert('刪除失敗');
   }

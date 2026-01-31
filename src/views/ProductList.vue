@@ -1,6 +1,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
 import request from '../api/request';
+import { fetchCartCount } from '../store/cartStore';
 
 // --- 狀態管理 ---
 const mobileFiltersOpen = ref(false);
@@ -36,6 +37,8 @@ const addToCart = async (product) => {
       quantity: 1
     });
     alert('已加入購物車！');
+    await fetchCartCount();
+    
   } catch (error) {
     alert('請先登入');
     router.push('/login');

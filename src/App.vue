@@ -2,41 +2,39 @@
 import { ref, onMounted } from 'vue';
 import AuthModal from './components/AuthModal.vue';
 import Navbar from './components/Navbar.vue';
-      
+
 const isAuthModalOpen = ref(false);
-const isAdmin = ref(false);
+// const isAdmin = ref(false);
 
 // 登入成功後的回調 (例如重新整理頁面或更新 UI)
 const onLoginSuccess = () => {
-  // 這裡可以做一些登入後的處理，目前先單純關閉視窗
-  isAuthModalOpen.value = false;
-  // 如果需要跳轉頁面，可以使用 router.push('/')
+  isAuthModalOpen.value = false; //登入box自動關掉
 };
 
-const checkRole = () => {
-  const token = localStorage.getItem('jwt');
-  if (token) {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      if (payload.role === 'ROLE_ADMIN') {
-        isAdmin.value = true;
-      }
-    } catch (e) {
-      console.error('Token 解析失敗', e);
-      isAdmin.value = false;
-    }
-  }
-};
+// const checkRole = () => {
+//   const token = localStorage.getItem('jwt');
+//   if (token) {
+//     try {
+//       const payload = JSON.parse(atob(token.split('.')[1]));
+//       if (payload.role === 'ROLE_ADMIN') {
+//         isAdmin.value = true;
+//       }
+//     } catch (e) {
+//       console.error('Token 解析失敗', e);
+//       isAdmin.value = false;
+//     }
+//   }
+// };
 
-onMounted(() => {
-  checkRole();
-});
+// onMounted(() => {
+//   checkRole();
+// });
 </script>
 
 
 <template>
-  <!-- <nav class="bg-black text-white p-4 flex justify-between items-center"> -->
   <Navbar />
+  <!-- <nav class="bg-black text-white p-4 flex justify-between items-center"> -->
     <!-- <router-link to="/" class="text-xl font-bold">Mars E-Commerce</router-link>
     <div class="space-x-4">
       <router-link to="/" class="hover:text-gray-300">商品列表</router-link>
@@ -58,10 +56,13 @@ onMounted(() => {
     leave-from-class="opacity-100"
     leave-to-class="opacity-0"
   >
-    <AuthModal 
+    <!-- <AuthModal 
         v-if="isAuthModalOpen" 
         :isOpen="isAuthModalOpen" 
         @close="isAuthModalOpen = false" 
+        @loginSuccess="onLoginSuccess"
+    /> -->
+    <AuthModal  
         @loginSuccess="onLoginSuccess"
     />
   </Transition>

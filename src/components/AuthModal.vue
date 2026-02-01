@@ -1,12 +1,13 @@
 <script setup>
 import { ref } from 'vue';
 import request from '../api/request';
+import { useUserStore } from '../stores/user';
 
 const props = defineProps(['isOpen']);
 const emit = defineEmits(['close', 'loginSuccess']);
+const userStore = useUserStore();
 
 const isLogin = ref(true); // true顯示登入, false顯示註冊
-
 const loginForm = ref({ email: '', password: '' });
 const registerForm = ref({ username: '', email: '', password: '' });
 
@@ -19,7 +20,8 @@ const handleLogin = async () => {
         password: loginForm.value.password
     });
     if (res.data.jwt) {
-      localStorage.setItem('jwt', res.data.jwt);
+      userStore.login(res.data.jwt);
+
       alert('登入成功');
       emit('close'); // 關閉視窗
       emit('loginSuccess'); // 通知父元件重整狀態
@@ -40,7 +42,7 @@ const handleRegister = async () => {
         // role: 'ROLE_USER' // 預設就是 User
     });
     if (res.data.jwt) {
-        localStorage.setItem('jwt', res.data.jwt);
+        userStore.login(res.data.jwt);
         alert('註冊成功');
         emit('close');
         emit('loginSuccess');

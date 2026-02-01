@@ -1,62 +1,61 @@
 <script setup>
 import { ref, onMounted, watch} from 'vue';
 import AuthModal from './AuthModal.vue';
-import { cartCount, fetchCartCount } from '../store/cartStore';
+import { cartCount } from '../store/cartStore';
+import { useUserStore } from '../stores/user';
 
 const isAuthModalOpen = ref(false);
 const isMenuOpen = ref(false);//手機版菜單開關
-const isLoggedIn = ref(false); //登入狀態
+// const isLoggedIn = ref(false); //登入狀態
 const isProfileMenuOpen = ref(false);
-const isAdmin = ref(false);
+// const isAdmin = ref(false);
+const userStore = useUserStore();
 
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
 };
 
-const checkLoginStatus = () => {
-  const token = localStorage.getItem('jwt');
-  if (token) {
-    isLoggedIn.value = true;
-    fetchCartCount();
-    try {
-        // Token 格式是 header.payload.signature，我們取中間的 payload
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        if (payload.role === 'ROLE_ADMIN') {
-            isAdmin.value = true;
-        } else {
-            isAdmin.value = false;
-        }
-    } catch (e) {
-        console.error('Token 解析失敗', e);
-        isLoggedIn.value = false;
-        isAdmin.value = false;
-        cartCount.value = 0;
-    }
+// const checkLoginStatus = () => {
+//   const token = localStorage.getItem('jwt');
+//   if (token) {
+//     isLoggedIn.value = true;
+//     fetchCartCount();
+//     try {
+//         // Token 格式是 header.payload.signature，我們取中間的 payload
+//         const payload = JSON.parse(atob(token.split('.')[1]));
+//         if (payload.role === 'ROLE_ADMIN') {
+//             isAdmin.value = true;
+//         } else {
+//             isAdmin.value = false;
+//         }
+//     } catch (e) {
+//         console.error('Token 解析失敗', e);
+//         isLoggedIn.value = false;
+//         isAdmin.value = false;
+//         cartCount.value = 0;
+//     }
 
-  } else {
-    isLoggedIn.value = false;
-  }
-};
+//   } else {
+//     isLoggedIn.value = false;
+//   }
+// };
 
 //處理登入成功 (由 AuthModal 觸發)
 const handleLoginSuccess = () => {
-  checkLoginStatus();
   isAuthModalOpen.value = false; // 關閉登入視窗
   isProfileMenuOpen.value = false; // 確保選單是關閉的
 };
 
 //處理登出
 const handleLogout = () => {
-  localStorage.removeItem('jwt'); // 1. 移除 Token
-  isLoggedIn.value = false;       // 2. 更新狀態
+  userStore.logout();
   isProfileMenuOpen.value = false; // 3. 關閉選單
-  isAdmin.value = false;
   alert('已登出');
   // 如果需要跳轉回首頁，可以加上: window.location.href = '/';
 };
 
 onMounted(() => {
-  checkLoginStatus();
+ userStore.checkAuth();
 });
 </script>
 

@@ -36,3 +36,21 @@ npm run dev
 ```sh
 npm run build
 ```
+
+## Product API 診斷腳本
+
+如果前端商品列表沒有顯示，你可以先用下面指令檢查是 API 回傳問題，還是前端渲染/過濾問題。
+
+```sh
+npm run test:product-api
+```
+
+可選參數（用 `--參數=值`）：
+
+```sh
+npm run test:product-api -- --category=Shoes --minPrice=100 --maxPrice=999 --pageNumber=0 --pageSize=12
+```
+
+可選環境變數：
+- `API_BASE_URL`：預設 `http://localhost:8080`
+- `API_JWT`：如果 API 需要登入 token，可透過這個變數帶入

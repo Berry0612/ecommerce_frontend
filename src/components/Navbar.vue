@@ -3,6 +3,7 @@ import { ref, onMounted, watch} from 'vue';
 import AuthModal from './AuthModal.vue';
 import { cartCount } from '../store/cartStore';
 import { useUserStore } from '../stores/user';
+import { storeToRefs } from 'pinia';
 
 const isAuthModalOpen = ref(false);
 const isMenuOpen = ref(false);//手機版菜單開關
@@ -10,6 +11,7 @@ const isMenuOpen = ref(false);//手機版菜單開關
 const isProfileMenuOpen = ref(false);
 // const isAdmin = ref(false);
 const userStore = useUserStore();
+const { isLoggedIn, isAdmin } = storeToRefs(userStore);
 
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;

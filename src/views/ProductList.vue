@@ -7,6 +7,14 @@ import { fetchCartCount } from '../store/cartStore';
 const mobileFiltersOpen = ref(false);
 const products = ref([]);
 const sortOption = ref('newest');
+const currentPage = ref(0); // 當前頁碼 (後端是從 0 開始)
+const totalPages = ref(0);  // 總頁數
+
+const sortOptions = [
+  { name: '最新上架', value: 'newest' },
+  { name: '價格: 低到高', value: 'price_asc' },
+  { name: '價格: 高到低', value: 'price_desc' },
+];
 
 // 過濾器狀態 (保留了你原本的結構並擴充)
 const filters = reactive({
@@ -14,17 +22,31 @@ const filters = reactive({
   minPrice: null,
   maxPrice: null,
   pageNumber: 0,
-  pageSize: 10
+  pageSize: 12
 });
 
 const fetchProducts = async () => {
   try {
+    filters.pageNumber = currentPage.value; // 確保 filters 裡的頁碼是正確的
     // 呼叫 GET /api/product/ 帶入 query params [cite: 27-34]
     const res = await request.get('/api/product/', { params: filters });
-    // 回傳結構是 PageProductEntity，商品在 content 欄位 [cite: 59-60]
-    products.value = res.data.content;
+    // 確保後端回傳結構正確 (Spring Boot Page 結構)
+    if (res.data && res.data.content) {
+        products.value = res.data.content;
+        totalPages.value = res.data.totalPages;
+    } else {
+        products.value = [];
+    }
   } catch (error) {
-    console.error(error);
+    console.error("獲取商品失敗:", error);
+  }
+};
+
+// [新增] 換頁函式
+const changePage = (page) => {
+  if (page >= 0 && page < totalPages.value) {
+    currentPage.value = page;
+    fetchProducts();
   }
 };
 
@@ -181,7 +203,7 @@ onMounted(() => {
               <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
                 <div v-for="product in products" :key="product.id" class="group relative">
                   <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
-                    <img :src="product.imageSrc || 'https://placehold.co/400x400'" :alt="product.name" class="h-full w-full object-cover object-center lg:h-full lg:w-full">
+                    <img :src="product.imageUrl || 'https://placehold.co/400x400'" :alt="product.name" class="h-full w-full object-cover object-center lg:h-full lg:w-full">
                   </div>
                   <div class="mt-4 flex justify-between">
                     <div>
@@ -201,6 +223,28 @@ onMounted(() => {
                 </div>
               </div>
             </div>
+          </div>
+
+          <div class="mt-8 flex justify-center items-center gap-4">
+              <button 
+                  @click="changePage(currentPage - 1)" 
+                  :disabled="currentPage === 0"
+                  class="px-4 py-2 border rounded bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                  Previous
+              </button>
+
+              <span class="text-sm text-gray-700">
+                  Page <span class="font-medium">{{ currentPage + 1 }}</span> of <span class="font-medium">{{ totalPages }}</span>
+              </span>
+
+              <button 
+                  @click="changePage(currentPage + 1)" 
+                  :disabled="currentPage >= totalPages - 1"
+                  class="px-4 py-2 border rounded bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                  Next
+              </button>
           </div>
         </section>
       </main>
